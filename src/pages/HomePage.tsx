@@ -24,17 +24,17 @@ export default function HomePage({ user, movies, onNavigate, onOpenMovie }: Home
   return (
     <div className="min-h-screen pb-20 md:pb-0">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-4 py-12 md:py-20">
+      <section className="bg-gradient-to-br from-rose-500 to-rose-700 text-white px-4 py-12 md:py-20">
         <div className="max-w-4xl mx-auto">
-          <p className="text-blue-200 text-sm font-medium mb-2 animate-fade-in">Привет, {user.name} 👋</p>
+          <p className="text-rose-200 text-sm font-medium mb-2 animate-fade-in">Привет, {user.name} 👋</p>
           <h1 className="text-3xl md:text-5xl font-bold font-golos mb-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             Учи английский<br />через любимые фильмы
           </h1>
-          <p className="text-blue-100 text-base md:text-lg mb-8 max-w-xl animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <p className="text-rose-100 text-base md:text-lg mb-8 max-w-xl animate-fade-in" style={{ animationDelay: '0.2s' }}>
             Интерактивные субтитры, личный словарь и тесты — всё что нужно для прогресса
           </p>
           <div className="flex flex-wrap gap-3 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <Button onClick={() => onNavigate('movies')} size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-semibold">
+            <Button onClick={() => onNavigate('movies')} size="lg" className="bg-white text-rose-600 hover:bg-rose-50 font-semibold">
               <Icon name="Play" size={18} className="mr-2" />
               Начать смотреть
             </Button>
@@ -47,19 +47,19 @@ export default function HomePage({ user, movies, onNavigate, onOpenMovie }: Home
           <div className="flex flex-wrap gap-6 mt-10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <div>
               <div className="text-2xl font-bold">{user.streak}</div>
-              <div className="text-blue-200 text-xs">дней подряд 🔥</div>
+              <div className="text-rose-200 text-xs">дней подряд 🔥</div>
             </div>
             <div>
               <div className="text-2xl font-bold">{watchedCount}</div>
-              <div className="text-blue-200 text-xs">просмотрено</div>
+              <div className="text-rose-200 text-xs">просмотрено</div>
             </div>
             <div>
               <div className="text-2xl font-bold">{user.wordsAdded}</div>
-              <div className="text-blue-200 text-xs">слов в словаре</div>
+              <div className="text-rose-200 text-xs">слов в словаре</div>
             </div>
             <div>
               <div className="text-2xl font-bold">{user.tasksCompleted}</div>
-              <div className="text-blue-200 text-xs">тестов пройдено</div>
+              <div className="text-rose-200 text-xs">тестов пройдено</div>
             </div>
           </div>
         </div>

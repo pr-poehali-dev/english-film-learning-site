@@ -121,7 +121,7 @@ export default function MoviePlayerPage({ movie, onBack, onAddWord, onTestPassed
                           <span
                             key={wi}
                             onClick={e => { e.stopPropagation(); handleWordClick(wordData); }}
-                            className={`cursor-pointer rounded px-0.5 transition-colors ${addedWords.has(wordData.word) ? 'text-green-400' : 'text-blue-300 hover:bg-blue-500/20'}`}
+                            className={`cursor-pointer rounded px-0.5 transition-colors ${addedWords.has(wordData.word) ? 'text-green-400' : 'text-rose-300 hover:bg-rose-400/20'}`}
                           >
                             {w}{' '}
                           </span>
@@ -170,14 +170,14 @@ export default function MoviePlayerPage({ movie, onBack, onAddWord, onTestPassed
       {/* Test button */}
       {plotTest && (
         <div className="mx-4">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-5 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-5 flex items-center justify-between">
             <div>
               <p className="text-white font-semibold">Тест на понимание</p>
-              <p className="text-blue-200 text-sm mt-0.5">Проверь, как ты усвоил сюжет</p>
+              <p className="text-rose-200 text-sm mt-0.5">Проверь, как ты усвоил сюжет</p>
             </div>
             <Button
               onClick={() => setShowTest(true)}
-              className="bg-white text-blue-700 hover:bg-blue-50 font-semibold shrink-0"
+              className="bg-white text-rose-600 hover:bg-rose-50 font-semibold shrink-0"
             >
               Пройти
             </Button>

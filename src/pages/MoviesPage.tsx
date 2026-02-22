@@ -14,8 +14,8 @@ const genres = ['Drama', 'Comedy', 'Sci-Fi', 'Thriller', 'Biography'];
 const levelColors: Record<string, string> = {
   A1: 'bg-green-100 text-green-700',
   A2: 'bg-green-100 text-green-700',
-  B1: 'bg-blue-100 text-blue-700',
-  B2: 'bg-blue-100 text-blue-700',
+  B1: 'bg-rose-100 text-rose-600',
+  B2: 'bg-rose-100 text-rose-600',
   C1: 'bg-purple-100 text-purple-700',
   C2: 'bg-purple-100 text-purple-700',
 };
