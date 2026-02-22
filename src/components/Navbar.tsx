@@ -12,7 +12,7 @@ interface NavbarProps {
 const navItems: { id: Page; label: string }[] = [
   { id: 'movies', label: 'Фильмы' },
   { id: 'dictionary', label: 'Словарь' },
-  { id: 'tests', label: 'Грамматика' },
+  { id: 'tests', label: 'Тесты' },
 ];
 
 export default function Navbar({ currentPage, onNavigate, user, onAbout, onLogin }: NavbarProps) {
@@ -46,7 +46,7 @@ export default function Navbar({ currentPage, onNavigate, user, onAbout, onLogin
                   : 'text-foreground/70 hover:text-foreground'
               }`}
             >
-              Речь
+              Профиль
             </button>
           )}
         </nav>
