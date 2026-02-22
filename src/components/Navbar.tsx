@@ -1,85 +1,100 @@
-import Icon from '@/components/ui/icon';
-import { User } from '@/types';
 import { Page } from '@/types';
+import { User } from '@/types';
 
 interface NavbarProps {
   currentPage: Page;
   onNavigate: (page: Page) => void;
-  user: User;
+  user: User | null;
   onAbout: () => void;
+  onLogin?: () => void;
 }
 
-const navItems: { id: Page; label: string; icon: string }[] = [
-  { id: 'home', label: 'Главная', icon: 'Home' },
-  { id: 'movies', label: 'Фильмы', icon: 'Film' },
-  { id: 'tests', label: 'Тесты', icon: 'BookOpen' },
-  { id: 'dictionary', label: 'Словарь', icon: 'BookMarked' },
-  { id: 'profile', label: 'Профиль', icon: 'User' },
+const navItems: { id: Page; label: string }[] = [
+  { id: 'movies', label: 'Фильмы' },
+  { id: 'dictionary', label: 'Словарь' },
+  { id: 'tests', label: 'Грамматика' },
 ];
 
-export default function Navbar({ currentPage, onNavigate, user, onAbout }: NavbarProps) {
+export default function Navbar({ currentPage, onNavigate, user, onAbout, onLogin }: NavbarProps) {
   return (
     <>
-      {/* Desktop top navbar */}
-      <header className="hidden md:flex fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-border h-16 items-center px-6">
-        <div className="flex items-center gap-2 mr-8">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Icon name="Film" size={16} className="text-white" />
-          </div>
-          <span className="font-bold text-lg font-golos text-foreground">CineEnglish</span>
-        </div>
+      <header className="hidden md:flex fixed top-0 left-0 right-0 z-40 h-14 items-center px-8" style={{ backgroundColor: '#f3e5e5' }}>
+        <button onClick={() => onNavigate('home')} className="font-bold text-lg font-golos text-foreground mr-8 tracking-tight">
+          EngFil
+        </button>
 
-        <nav className="flex items-center gap-1 flex-1">
+        <nav className="flex items-center gap-6 flex-1">
           {navItems.map(item => (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`text-sm transition-colors ${
                 currentPage === item.id
-                  ? 'bg-primary text-white'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  ? 'text-foreground font-semibold'
+                  : 'text-foreground/70 hover:text-foreground'
               }`}
             >
-              <Icon name={item.icon} size={16} />
               {item.label}
             </button>
           ))}
+          {user && (
+            <button
+              onClick={() => onNavigate('profile')}
+              className={`text-sm transition-colors ${
+                currentPage === 'profile'
+                  ? 'text-foreground font-semibold'
+                  : 'text-foreground/70 hover:text-foreground'
+              }`}
+            >
+              Речь
+            </button>
+          )}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onAbout}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
+        <div className="flex items-center gap-6">
+          <button onClick={onAbout} className="text-sm text-foreground/70 hover:text-foreground transition-colors">
             О сайте
           </button>
-          <div className="flex items-center gap-2 bg-secondary rounded-full pl-3 pr-1 py-1">
-            <span className="text-sm font-medium">{user.name}</span>
-            <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">{user.name[0]}</span>
-            </div>
-          </div>
+          {user ? (
+            <button
+              onClick={() => onNavigate('profile')}
+              className="text-sm text-foreground/70 hover:text-foreground transition-colors"
+            >
+              {user.name.substring(0, 2).toLowerCase()}
+            </button>
+          ) : (
+            <button onClick={onLogin} className="text-sm text-foreground/70 hover:text-foreground transition-colors">
+              Вход
+            </button>
+          )}
         </div>
       </header>
 
-      {/* Mobile bottom navbar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border h-16 flex items-center justify-around px-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border h-14 flex items-center justify-around px-2" style={{ backgroundColor: '#f3e5e5' }}>
+        <button onClick={() => onNavigate('home')} className={`text-xs font-medium px-3 py-2 ${currentPage === 'home' ? 'text-foreground font-bold' : 'text-foreground/60'}`}>
+          EngFil
+        </button>
         {navItems.map(item => (
           <button
             key={item.id}
             onClick={() => onNavigate(item.id)}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
-              currentPage === item.id ? 'text-primary' : 'text-muted-foreground'
-            }`}
+            className={`text-xs font-medium px-3 py-2 ${currentPage === item.id ? 'text-foreground font-bold' : 'text-foreground/60'}`}
           >
-            <Icon name={item.icon} size={22} />
-            <span className="text-[10px] font-medium">{item.label}</span>
+            {item.label}
           </button>
         ))}
+        {user ? (
+          <button onClick={() => onNavigate('profile')} className={`text-xs font-medium px-3 py-2 ${currentPage === 'profile' ? 'text-foreground font-bold' : 'text-foreground/60'}`}>
+            Профиль
+          </button>
+        ) : (
+          <button onClick={onLogin} className="text-xs font-medium px-3 py-2 text-foreground/60">
+            Вход
+          </button>
+        )}
       </nav>
 
-      {/* Spacer for top navbar */}
-      <div className="hidden md:block h-16" />
+      <div className="hidden md:block h-14" />
     </>
   );
 }

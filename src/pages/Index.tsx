@@ -19,11 +19,13 @@ export default function Index() {
   const [dictionary, setDictionary] = useState<DictionaryWord[]>(mockDictionary);
   const [tests, setTests] = useState<Test[]>(mockTests);
   const [showAbout, setShowAbout] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
 
   const watchedMovieIds = movies.filter(m => m.testPassed).map(m => m.id);
 
   const handleAuth = (name: string, email: string) => {
     setUser({ ...mockUser, name, email });
+    setShowAuth(false);
   };
 
   const handleLogout = () => {
@@ -33,6 +35,10 @@ export default function Index() {
   };
 
   const handleOpenMovie = (movie: Movie) => {
+    if (!user) {
+      setShowAuth(true);
+      return;
+    }
     setActiveMovie(movie);
     setCurrentPage('movie-player');
   };
@@ -62,13 +68,13 @@ export default function Index() {
   };
 
   const handleNavigate = (page: Page) => {
+    if (!user && page !== 'home') {
+      setShowAuth(true);
+      return;
+    }
     if (page !== 'movie-player') setActiveMovie(null);
     setCurrentPage(page);
   };
-
-  if (!user) {
-    return <AuthModal onAuth={handleAuth} />;
-  }
 
   const plotTest = activeMovie
     ? tests.find(t => t.movieId === activeMovie.id && t.type === 'plot')
@@ -82,13 +88,14 @@ export default function Index() {
           onNavigate={handleNavigate}
           user={user}
           onAbout={() => setShowAbout(true)}
+          onLogin={() => setShowAuth(true)}
         />
       )}
 
       <main>
         {currentPage === 'home' && (
           <HomePage
-            user={user}
+            user={user || { ...mockUser, name: 'Гость' }}
             movies={movies}
             onNavigate={handleNavigate}
             onOpenMovie={handleOpenMovie}
@@ -107,7 +114,7 @@ export default function Index() {
         {currentPage === 'dictionary' && (
           <DictionaryPage words={dictionary} onToggleLearned={handleToggleLearned} />
         )}
-        {currentPage === 'profile' && (
+        {currentPage === 'profile' && user && (
           <ProfilePage user={user} movies={movies} words={dictionary} onLogout={handleLogout} />
         )}
         {currentPage === 'movie-player' && activeMovie && (
@@ -121,6 +128,9 @@ export default function Index() {
         )}
       </main>
 
+      {showAuth && (
+        <AuthModal onAuth={handleAuth} onClose={() => setShowAuth(false)} standalone={false} />
+      )}
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
     </div>
   );
