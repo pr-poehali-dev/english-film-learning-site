@@ -20,7 +20,8 @@ export const mockMovies: Movie[] = [
     genre: ["Drama"],
     topic: ["Justice", "Prejudice", "Persuasion"],
     level: "B2",
-    poster: "картинки для фильмов/",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/81789f2a-9063-474b-bb5f-c2af4bf71940.jpg",
     description:
       "Глубокая психологическая драма о присяжных, решающих судьбу подростка, обвиняемого в убийстве.",
     watched: true,
