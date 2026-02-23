@@ -1,4 +1,6 @@
 {
+  "save-movie-media": "https://functions.poehali.dev/1474201a-ffea-4c9f-aad6-bd443632aaaa",
+  "get-movie-media": "https://functions.poehali.dev/7f1774b2-2f50-4e53-bad4-5643dbafeb6e",
   "upload-video": "https://functions.poehali.dev/68ac1c0d-cf9d-423f-a54c-72d288ab85b3",
   "list-files": "https://functions.poehali.dev/90ca8d60-cbc7-4f15-970e-cacabf88a6e1"
 }
