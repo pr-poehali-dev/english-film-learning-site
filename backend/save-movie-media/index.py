@@ -40,8 +40,10 @@ def handler(event: dict, context) -> dict:
     video_url = None
     subtitle_url = None
 
-    # Загрузка видео
-    if body.get('videoFile'):
+    # Прямая ссылка на видео (приоритет над файлом)
+    if body.get('videoUrl'):
+        video_url = body['videoUrl']
+    elif body.get('videoFile'):
         video_bytes = base64.b64decode(body['videoFile'])
         ext = body.get('videoFilename', 'video.mp4').rsplit('.', 1)[-1].lower()
         key = f"videos/movie_{movie_id}_{uuid.uuid4().hex[:8]}.{ext}"
@@ -49,8 +51,10 @@ def handler(event: dict, context) -> dict:
         s3.put_object(Bucket='files', Key=key, Body=video_bytes, ContentType=content_types.get(ext, 'video/mp4'))
         video_url = f"https://cdn.poehali.dev/projects/{project_id}/bucket/{key}"
 
-    # Загрузка субтитров (.srt или .vtt)
-    if body.get('subtitleFile'):
+    # Прямая ссылка на субтитры или загрузка файла
+    if body.get('subtitleUrl'):
+        subtitle_url = body['subtitleUrl']
+    elif body.get('subtitleFile'):
         sub_bytes = base64.b64decode(body['subtitleFile'])
         ext = body.get('subtitleFilename', 'subs.srt').rsplit('.', 1)[-1].lower()
         key = f"subtitles/movie_{movie_id}_{uuid.uuid4().hex[:8]}.{ext}"
