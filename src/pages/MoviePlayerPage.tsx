@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Movie, DictionaryWord, Test } from '@/types';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import TestModal from '@/components/TestModal';
+import func2url from '../../backend/func2url.json';
 
 interface MoviePlayerPageProps {
   movie: Movie;
   onBack: () => void;
   onAddWord: (word: DictionaryWord) => void;
   onTestPassed: (movieId: number) => void;
+  onVideoUploaded?: (movieId: number, url: string) => void;
   plotTest: Test | undefined;
 }
 
-export default function MoviePlayerPage({ movie, onBack, onAddWord, onTestPassed, plotTest }: MoviePlayerPageProps) {
+export default function MoviePlayerPage({
+  movie,
+  onBack,
+  onAddWord,
+  onTestPassed,
+  onVideoUploaded,
+  plotTest,
+}: MoviePlayerPageProps) {
   const [selectedWord, setSelectedWord] = useState<{ word: string; translation: string; partOfSpeech: string } | null>(null);
   const [addedWords, setAddedWords] = useState<Set<string>>(new Set());
   const [showTest, setShowTest] = useState(false);
   const [currentSubtitle, setCurrentSubtitle] = useState(0);
+  const [videoUrl, setVideoUrl] = useState<string | undefined>(movie.videoUrl);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleWordClick = (w: { word: string; translation: string; partOfSpeech: string }) => {
     setSelectedWord(w);
@@ -43,6 +56,44 @@ export default function MoviePlayerPage({ movie, onBack, onAddWord, onTestPassed
     if (passed) onTestPassed(movie.id);
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadError(null);
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+
+      const res = await fetch(func2url['upload-video'], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file: base64,
+          filename: file.name,
+          movieId: movie.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Ошибка загрузки');
+
+      setVideoUrl(data.url);
+      onVideoUploaded?.(movie.id, data.url);
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Ошибка загрузки');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen pb-20 md:pb-8 bg-gray-950">
       {/* Back button */}
@@ -60,16 +111,51 @@ export default function MoviePlayerPage({ movie, onBack, onAddWord, onTestPassed
 
       {/* Video Player */}
       <div className="relative bg-black mx-4 rounded-2xl overflow-hidden mb-4 aspect-video flex items-center justify-center">
-        <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover opacity-30" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 hover:bg-white/30 transition-colors cursor-pointer">
-            <Icon name="Play" size={28} className="text-white ml-1" />
-          </div>
-          <p className="text-white/60 text-sm">Видео недоступно в демо-режиме</p>
-        </div>
+        {videoUrl ? (
+          <video
+            src={videoUrl}
+            controls
+            className="w-full h-full object-contain"
+            crossOrigin="anonymous"
+          >
+            Ваш браузер не поддерживает видео.
+          </video>
+        ) : (
+          <>
+            <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover opacity-30" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex flex-col items-center gap-2 group"
+              >
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+                  {uploading
+                    ? <Icon name="Loader2" size={28} className="text-white animate-spin" />
+                    : <Icon name="Upload" size={28} className="text-white" />
+                  }
+                </div>
+                <p className="text-white/80 text-sm font-medium">
+                  {uploading ? 'Загружаю видео...' : 'Загрузить видео'}
+                </p>
+              </button>
+              {uploadError && (
+                <p className="text-red-400 text-xs text-center px-4">{uploadError}</p>
+              )}
+              <p className="text-white/40 text-xs">MP4, WebM, MOV · до нескольких ГБ</p>
+            </div>
+          </>
+        )}
 
-        {/* Subtitle on video */}
-        {movie.subtitles.length > 0 && (
+        {/* Subtitle on video — only when no native player */}
+        {!videoUrl && movie.subtitles.length > 0 && (
           <div className="absolute bottom-4 left-4 right-4 text-center">
             <div className="inline-block bg-black/75 rounded-lg px-4 py-2">
               <p className="text-white text-sm">
@@ -79,11 +165,7 @@ export default function MoviePlayerPage({ movie, onBack, onAddWord, onTestPassed
                   );
                   if (wordData) {
                     return (
-                      <span
-                        key={i}
-                        onClick={() => handleWordClick(wordData)}
-                        className="subtitle-word"
-                      >
+                      <span key={i} onClick={() => handleWordClick(wordData)} className="subtitle-word">
                         {w}{' '}
                       </span>
                     );
@@ -95,6 +177,27 @@ export default function MoviePlayerPage({ movie, onBack, onAddWord, onTestPassed
           </div>
         )}
       </div>
+
+      {/* Replace video button */}
+      {videoUrl && (
+        <div className="mx-4 mb-4 flex justify-end">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-1.5 text-white/40 hover:text-white/70 transition-colors text-xs"
+          >
+            <Icon name={uploading ? 'Loader2' : 'RefreshCw'} size={13} className={uploading ? 'animate-spin' : ''} />
+            {uploading ? 'Загружаю...' : 'Заменить видео'}
+          </button>
+        </div>
+      )}
 
       {/* Subtitle navigation */}
       {movie.subtitles.length > 0 && (
