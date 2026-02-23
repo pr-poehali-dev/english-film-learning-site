@@ -39,7 +39,7 @@ const features = [
 ];
 
 const moviePosters = [
-  "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/07539f88-a001-4ab3-a444-87b5f63968bf.jpg",
+  "https://cdn.poehali.dev/files/ce28299f-e83f-4eb0-8f85-b72b8a05acba.JPG",
 ];
 
 export default function HomePage({
