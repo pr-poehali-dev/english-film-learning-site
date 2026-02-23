@@ -67,7 +67,8 @@ export const mockMovies: Movie[] = [
     genre: ["Drama", "Romance"],
     topic: ["Life journey", "Love", "Destiny"],
     level: "A2",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/81789f2a-9063-474b-bb5f-c2af4bf71940.jpg",
     description:
       "Удивительная история жизни доброго и простодушного парня, который стал участником важнейших событий американской истории.",
     watched: false,
@@ -105,7 +106,8 @@ export const mockMovies: Movie[] = [
     genre: ["Fantasy"],
     topic: ["Magic", "Friendship", "Good vs Evil"],
     level: "B1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/248a77ac-3037-47b7-a4c3-b6364dbd6052.jpg",
     description:
       "Начало волшебного пути мальчика, который выжил, и его друзей в школе чародейства и волшебства Хогвартс.",
     watched: false,
@@ -131,7 +133,8 @@ export const mockMovies: Movie[] = [
     genre: ["Drama", "Family"],
     topic: ["Loyalty", "Animals", "Love"],
     level: "A2",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/9084c455-66cd-4bba-8ec1-205d5788a760.jpg",
     description:
       "Трогательная реальная история о невероятной преданности собаки своему хозяину.",
     watched: false,
@@ -146,7 +149,8 @@ export const mockMovies: Movie[] = [
     genre: ["Animation", "Adventure", "Comedy"],
     topic: ["Emotions", "Growing up", "Family"],
     level: "B1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/e61df926-3a3a-4600-8f98-13e86480433e.jpg",
     description:
       "Увлекательное путешествие в сознание одиннадцатилетней девочки, где её эмоции пытаются справиться с переездом.",
     watched: false,
@@ -161,7 +165,8 @@ export const mockMovies: Movie[] = [
     genre: ["Fantasy", "Adventure", "Family"],
     topic: ["Magic", "Bravery", "Family"],
     level: "A1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/9300f8ba-a167-4325-8bb1-94fd7c67e4f1.jpg",
     description:
       "Четверо детей находят через платяной шкаф путь в волшебную страну, которой суждено спастись от вечной зимы.",
     watched: false,
@@ -176,7 +181,8 @@ export const mockMovies: Movie[] = [
     genre: ["Comedy", "Family", "Adventure"],
     topic: ["Family", "Kindness", "London"],
     level: "B1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/d42d8241-8b0a-45ad-8afc-2fa1a05ae828.jpg",
     description:
       "Забавная история о вежливом медведе из Перу, который приезжает в Лондон в поисках нового дома.",
   },
@@ -188,7 +194,8 @@ export const mockMovies: Movie[] = [
     genre: ["Drama"],
     topic: ["Family", "Road trip"],
     level: "B2",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/a34c7e72-a7a1-48c5-90b3-2a81e32bd69d.jpg",
     description:
       "Эгоистичный молодой человек открывает для себя новые ценности, путешествуя со своим братом-аутистом, получившим огромное наследство.",
   },
@@ -200,7 +207,8 @@ export const mockMovies: Movie[] = [
     genre: ["Animation", "Comedy", "Family"],
     topic: ["Cooking", "Dreams", "Perseverance"],
     level: "A2",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/c8a8168e-b172-4e11-9b97-f52b1d7faead.jpg",
     description:
       "Вдохновляющая история о крысе с уникальным обонянием, которая мечтает стать великим шеф-поваром в Париже.",
   },
@@ -212,7 +220,8 @@ export const mockMovies: Movie[] = [
     genre: ["Drama"],
     topic: ["Life lessons", "Friendship", "Honor"],
     level: "B2",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/e98d58d0-e507-44f7-8162-27a6d8e83dab.png",
     description:
       "Путешествие слепого полковника в отставке и молодого студента, которое навсегда меняет жизни обоих.",
   },
@@ -224,7 +233,8 @@ export const mockMovies: Movie[] = [
     genre: ["Biography", "Drama"],
     topic: ["Motivation", "Fatherhood", "Struggle"],
     level: "B1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/42d7b91b-b08e-4a18-8bb2-53e47d4b28de.jpg",
     description:
       "Реальная история отца-одиночки, который проходит через бездомность и тяжелые испытания ради лучшего будущего для своего сына.",
   },
@@ -236,7 +246,8 @@ export const mockMovies: Movie[] = [
     genre: ["Adventure", "Comedy", "Drama"],
     topic: ["Self-discovery", "Travel", "Courage"],
     level: "B1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/07539f88-a001-4ab3-a444-87b5f63968bf.jpg",
     description:
       "Обычный офисный работник отправляется в захватывающее путешествие по всему миру, чтобы найти потерянный кадр для журнала.",
   },
@@ -248,7 +259,8 @@ export const mockMovies: Movie[] = [
     genre: ["Animation", "Adventure", "Comedy"],
     topic: ["Friendship", "Jealousy", "Toys"],
     level: "A2",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/0c4d9fab-a036-4d5a-ad26-e92d04f0caca.jpg",
     description:
       "Тайная жизнь игрушек, где любимец мальчика, ковбой Вуди, сталкивается с конкуренцией в лице нового астронавта Базза Лайтера.",
   },
@@ -260,7 +272,8 @@ export const mockMovies: Movie[] = [
     genre: ["Drama", "Comedy", "Sci-Fi"],
     topic: ["Reality TV", "Freedom", "Illusion"],
     level: "B1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/72346b56-6fc7-4203-ac53-0aaaaa76a961.jpg",
     description:
       "Мужчина начинает подозревать, что вся его идеальная жизнь — это круглосуточное реалити-шоу, где он — главная звезда.",
   },
@@ -272,7 +285,8 @@ export const mockMovies: Movie[] = [
     genre: ["Animation", "Adventure", "Comedy"],
     topic: ["Dreams", "Grief", "Adventure"],
     level: "A2",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/7d594a56-52bf-4754-b877-f24e410a8b74.jpg",
     description:
       "Ворчливый старик и жизнерадостный мальчик-скаут отправляются в Южную Америку на доме, привязанном к тысячам воздушных шаров.",
   },
@@ -284,7 +298,8 @@ export const mockMovies: Movie[] = [
     genre: ["Adventure", "Comedy", "Family"],
     topic: ["Magic", "Family values", "Greed"],
     level: "B1",
-    poster: "",
+    poster:
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/ac0760b3-c032-427f-9462-f4bae0535a2c.jpg",
     description:
       "Бедный мальчик выигрывает золотой билет и попадает на удивительную и эксцентричную шоколадную фабрику Вилли Вонки.",
   },
