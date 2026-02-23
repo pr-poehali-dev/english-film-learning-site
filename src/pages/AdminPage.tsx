@@ -9,19 +9,46 @@ interface MediaStatus {
   subtitleUrl: string | null;
 }
 
-type UploadMode = 'url' | 'file';
+async function uploadFileToS3(file: File, folder: string): Promise<string> {
+  const contentTypeMap: Record<string, string> = {
+    mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime',
+    srt: 'text/plain', vtt: 'text/vtt',
+  };
+  const ext = file.name.rsplit ? 'mp4' : file.name.split('.').pop()?.toLowerCase() || 'mp4';
+
+  const res = await fetch(func2url['get-upload-url'], {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      filename: file.name,
+      folder,
+      contentType: contentTypeMap[ext] || 'application/octet-stream',
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error('Не удалось получить ссылку для загрузки');
+
+  const uploadRes = await fetch(data.uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': contentTypeMap[ext] || 'application/octet-stream' },
+    body: file,
+  });
+  if (!uploadRes.ok) throw new Error('Ошибка загрузки файла в хранилище');
+
+  return data.cdnUrl;
+}
 
 export default function AdminPage() {
   const [selectedMovieId, setSelectedMovieId] = useState<number>(mockMovies[0].id);
   const [mediaMap, setMediaMap] = useState<Record<number, MediaStatus>>({});
-  const [mode, setMode] = useState<UploadMode>('url');
 
-  const [videoUrlInput, setVideoUrlInput] = useState('');
-  const [subtitleUrlInput, setSubtitleUrlInput] = useState('');
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [subtitleFile, setSubtitleFile] = useState<File | null>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
   const subRef = useRef<HTMLInputElement>(null);
 
-  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState('');
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
 
   useEffect(() => {
@@ -33,38 +60,32 @@ export default function AdminPage() {
 
   const currentMedia = mediaMap[selectedMovieId];
 
-  const toBase64 = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve((reader.result as string).split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
   const handleSave = async () => {
-    const hasVideo = mode === 'url' && videoUrlInput.trim();
-    const hasSubUrl = mode === 'url' && subtitleUrlInput.trim();
-    const hasSubFile = mode === 'file' && subtitleFile;
-
-    if (!hasVideo && !hasSubUrl && !hasSubFile) {
-      setMessage({ text: 'Заполни хотя бы одно поле', ok: false });
+    if (!videoFile && !subtitleFile) {
+      setMessage({ text: 'Выбери хотя бы один файл', ok: false });
       return;
     }
 
-    setSaving(true);
+    setUploading(true);
     setMessage(null);
     try {
-      const body: Record<string, string | number> = { movieId: selectedMovieId };
+      let videoUrl: string | undefined;
+      let subtitleUrl: string | undefined;
 
-      if (mode === 'url') {
-        if (videoUrlInput.trim()) body.videoUrl = videoUrlInput.trim();
-        if (subtitleUrlInput.trim()) body.subtitleUrl = subtitleUrlInput.trim();
-      } else {
-        if (subtitleFile) {
-          body.subtitleFile = await toBase64(subtitleFile);
-          body.subtitleFilename = subtitleFile.name;
-        }
+      if (videoFile) {
+        setProgress(`Загружаю видео (${(videoFile.size / 1024 / 1024).toFixed(0)} МБ)...`);
+        videoUrl = await uploadFileToS3(videoFile, 'videos');
       }
+
+      if (subtitleFile) {
+        setProgress('Загружаю субтитры...');
+        subtitleUrl = await uploadFileToS3(subtitleFile, 'subtitles');
+      }
+
+      setProgress('Сохраняю в базу...');
+      const body: Record<string, string | number> = { movieId: selectedMovieId };
+      if (videoUrl) body.videoUrl = videoUrl;
+      if (subtitleUrl) body.subtitleUrl = subtitleUrl;
 
       const res = await fetch(func2url['save-movie-media'], {
         method: 'POST',
@@ -72,7 +93,7 @@ export default function AdminPage() {
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Ошибка');
+      if (!res.ok) throw new Error(data.error || 'Ошибка сохранения');
 
       setMediaMap(prev => ({
         ...prev,
@@ -81,15 +102,16 @@ export default function AdminPage() {
           subtitleUrl: data.subtitleUrl ?? prev[selectedMovieId]?.subtitleUrl ?? null,
         },
       }));
-      setVideoUrlInput('');
-      setSubtitleUrlInput('');
+      setVideoFile(null);
       setSubtitleFile(null);
+      if (videoRef.current) videoRef.current.value = '';
       if (subRef.current) subRef.current.value = '';
-      setMessage({ text: 'Сохранено!', ok: true });
+      setMessage({ text: 'Загружено и сохранено!', ok: true });
     } catch (e: unknown) {
       setMessage({ text: e instanceof Error ? e.message : 'Ошибка', ok: false });
     } finally {
-      setSaving(false);
+      setUploading(false);
+      setProgress('');
     }
   };
 
@@ -107,8 +129,7 @@ export default function AdminPage() {
           onChange={e => {
             setSelectedMovieId(Number(e.target.value));
             setMessage(null);
-            setVideoUrlInput('');
-            setSubtitleUrlInput('');
+            setVideoFile(null);
             setSubtitleFile(null);
           }}
           className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500"
@@ -126,78 +147,67 @@ export default function AdminPage() {
           <Icon name={currentMedia?.videoUrl ? 'CheckCircle' : 'Circle'} size={16} className={currentMedia?.videoUrl ? 'text-green-400' : 'text-white/30'} />
           <span className="text-sm text-white/70">Видео</span>
           {currentMedia?.videoUrl && (
-            <span className="text-xs text-green-400 ml-auto truncate max-w-xs">{currentMedia.videoUrl.replace(/^https?:\/\//, '').substring(0, 50)}…</span>
+            <span className="text-xs text-green-400 ml-auto truncate max-w-[200px]">загружено</span>
           )}
         </div>
         <div className="flex items-center gap-2">
           <Icon name={currentMedia?.subtitleUrl ? 'CheckCircle' : 'Circle'} size={16} className={currentMedia?.subtitleUrl ? 'text-green-400' : 'text-white/30'} />
           <span className="text-sm text-white/70">Субтитры</span>
           {currentMedia?.subtitleUrl && (
-            <span className="text-xs text-green-400 ml-auto truncate max-w-xs">{currentMedia.subtitleUrl.split('/').pop()}</span>
+            <span className="text-xs text-green-400 ml-auto truncate max-w-[200px]">загружены</span>
           )}
         </div>
       </div>
 
-      {/* Mode toggle */}
-      <div className="flex bg-gray-900 rounded-xl p-1 mb-5">
-        <button
-          onClick={() => setMode('url')}
-          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'url' ? 'bg-rose-600 text-white' : 'text-white/50 hover:text-white'}`}
+      {/* Upload fields */}
+      <div className="space-y-4 mb-6">
+        <div
+          onClick={() => !uploading && videoRef.current?.click()}
+          className="border-2 border-dashed border-gray-700 hover:border-rose-500 rounded-2xl p-5 cursor-pointer transition-colors"
         >
-          По ссылке
-        </button>
-        <button
-          onClick={() => setMode('file')}
-          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${mode === 'file' ? 'bg-rose-600 text-white' : 'text-white/50 hover:text-white'}`}
-        >
-          Файл субтитров
-        </button>
-      </div>
-
-      {mode === 'url' ? (
-        <div className="space-y-4 mb-6">
-          <div>
-            <label className="text-white/60 text-sm mb-1.5 block">Ссылка на видео</label>
-            <input
-              type="url"
-              value={videoUrlInput}
-              onChange={e => setVideoUrlInput(e.target.value)}
-              placeholder="https://…/movie.mp4"
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-rose-500 text-sm"
-            />
-            <p className="text-white/30 text-xs mt-1">Прямая ссылка на MP4/WebM файл с любого хостинга</p>
-          </div>
-          <div>
-            <label className="text-white/60 text-sm mb-1.5 block">Ссылка на субтитры</label>
-            <input
-              type="url"
-              value={subtitleUrlInput}
-              onChange={e => setSubtitleUrlInput(e.target.value)}
-              placeholder="https://…/subs.vtt"
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-rose-500 text-sm"
-            />
-            <p className="text-white/30 text-xs mt-1">Прямая ссылка на VTT или SRT файл</p>
+          <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={e => setVideoFile(e.target.files?.[0] || null)} />
+          <div className="flex items-center gap-3">
+            <Icon name="Film" size={20} className="text-rose-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">
+                {videoFile ? `${videoFile.name} (${(videoFile.size / 1024 / 1024).toFixed(0)} МБ)` : 'Выбрать видеофайл'}
+              </p>
+              <p className="text-white/40 text-xs mt-0.5">MP4, WebM, MOV — любой размер</p>
+            </div>
+            {videoFile && (
+              <button onClick={e => { e.stopPropagation(); setVideoFile(null); if (videoRef.current) videoRef.current.value = ''; }}>
+                <Icon name="X" size={16} className="text-white/40" />
+              </button>
+            )}
           </div>
         </div>
-      ) : (
-        <div className="mb-6">
-          <div
-            onClick={() => subRef.current?.click()}
-            className="border-2 border-dashed border-gray-700 hover:border-rose-500 rounded-2xl p-5 cursor-pointer transition-colors"
-          >
-            <input ref={subRef} type="file" accept=".srt,.vtt" className="hidden" onChange={e => setSubtitleFile(e.target.files?.[0] || null)} />
-            <div className="flex items-center gap-3">
-              <Icon name="AlignLeft" size={20} className="text-rose-400 shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">{subtitleFile ? subtitleFile.name : 'Нажми, чтобы выбрать файл субтитров'}</p>
-                <p className="text-white/40 text-xs mt-0.5">SRT или VTT</p>
-              </div>
-              {subtitleFile && (
-                <Icon name="X" size={16} className="text-white/40" onClick={e => { e.stopPropagation(); setSubtitleFile(null); if (subRef.current) subRef.current.value = ''; }} />
-              )}
+
+        <div
+          onClick={() => !uploading && subRef.current?.click()}
+          className="border-2 border-dashed border-gray-700 hover:border-rose-500 rounded-2xl p-5 cursor-pointer transition-colors"
+        >
+          <input ref={subRef} type="file" accept=".srt,.vtt" className="hidden" onChange={e => setSubtitleFile(e.target.files?.[0] || null)} />
+          <div className="flex items-center gap-3">
+            <Icon name="AlignLeft" size={20} className="text-rose-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">
+                {subtitleFile ? subtitleFile.name : 'Выбрать файл субтитров'}
+              </p>
+              <p className="text-white/40 text-xs mt-0.5">SRT или VTT</p>
             </div>
+            {subtitleFile && (
+              <button onClick={e => { e.stopPropagation(); setSubtitleFile(null); if (subRef.current) subRef.current.value = ''; }}>
+                <Icon name="X" size={16} className="text-white/40" />
+              </button>
+            )}
           </div>
-          <p className="text-white/30 text-xs mt-2 text-center">Для видео — используй вкладку "По ссылке": файлы слишком большие для прямой загрузки</p>
+        </div>
+      </div>
+
+      {progress && (
+        <div className="flex items-center gap-2 mb-4 px-1">
+          <Icon name="Loader2" size={14} className="text-rose-400 animate-spin" />
+          <span className="text-white/60 text-sm">{progress}</span>
         </div>
       )}
 
@@ -209,12 +219,12 @@ export default function AdminPage() {
 
       <Button
         onClick={handleSave}
-        disabled={saving}
+        disabled={uploading || (!videoFile && !subtitleFile)}
         className="w-full bg-rose-600 hover:bg-rose-500 text-white font-semibold py-3"
       >
-        {saving
-          ? <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Сохраняю...</>
-          : <><Icon name="Save" size={16} className="mr-2" />Сохранить</>
+        {uploading
+          ? <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Загружаю...</>
+          : <><Icon name="Upload" size={16} className="mr-2" />Загрузить</>
         }
       </Button>
 
