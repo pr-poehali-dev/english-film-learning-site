@@ -20,7 +20,7 @@ export const mockMovies: Movie[] = [
     genre: ["Drama"],
     topic: ["Justice", "Prejudice", "Persuasion"],
     level: "B2",
-    poster: "картинки",
+    poster: "картинки для фильмов/",
     description:
       "Глубокая психологическая драма о присяжных, решающих судьбу подростка, обвиняемого в убийстве.",
     watched: true,
