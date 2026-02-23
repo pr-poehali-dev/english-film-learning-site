@@ -21,7 +21,7 @@ export const mockMovies: Movie[] = [
     topic: ["Justice", "Prejudice", "Persuasion"],
     level: "B2",
     poster:
-      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/81789f2a-9063-474b-bb5f-c2af4bf71940.jpg",
+      "https://cdn.poehali.dev/projects/505b1121-d78f-4b5c-99ee-cc1fe01726bd/bucket/67db0020-5160-4946-83f6-3588e2e3673f.jpg",
     description:
       "Глубокая психологическая драма о присяжных, решающих судьбу подростка, обвиняемого в убийстве.",
     watched: true,
