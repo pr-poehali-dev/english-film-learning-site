@@ -1,0 +1,1 @@
+{"tests": [{"name": "List all files", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"count": 0}, "bodyMatcher": "partial"}]}
