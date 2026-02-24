@@ -123,6 +123,10 @@ export default function Index() {
             onBack={() => handleNavigate('movies')}
             onAddWord={handleAddWord}
             onTestPassed={handleTestPassed}
+            onVideoUploaded={(movieId, url) => {
+              setMovies(prev => prev.map(m => m.id === movieId ? { ...m, videoUrl: url } : m));
+              if (activeMovie?.id === movieId) setActiveMovie(prev => prev ? { ...prev, videoUrl: url } : prev);
+            }}
             plotTest={plotTest}
           />
         )}
